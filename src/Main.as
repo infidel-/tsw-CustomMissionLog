@@ -9,17 +9,17 @@ import com.Utils.Point;
 
 class Main
 {
-	public var cont: MovieClip;
-	public var textField: TextField;
-	public var isDrag: Boolean;
-	public var xDrag: Number;
-	public var yDrag: Number;
+	public static var cont: MovieClip;
+	public static var textField: TextField;
+	public static var isDrag: Boolean;
+	public static var xDrag: Number;
+	public static var yDrag: Number;
 	
 	public function Main(swfRoot:MovieClip)
     {
 		isDrag = false;
 		
-		this.cont = swfRoot.createEmptyMovieClip("missionLogContainer", 1);
+		cont = swfRoot.createEmptyMovieClip("missionLogContainer", 1);
 		var tt = cont.createTextField("missionLog", 1, 0, 0, 500, 200);
 		var t: TextField = tt;
 		cont._x = 10;
@@ -54,11 +54,11 @@ class Main
 		Quests.SignalQuestCooldownChanged.Connect( redraw, this );
 		
 		// mouse events
-//		cont.onRelease = onRelease;
-//		cont.onPress = onPress;
+		cont.onRelease = onRelease;
+		cont.onPress = onPress;
 		var mouseListener = new Object;
-		mouseListener.onMouseDown = onPress;
-		mouseListener.onMouseUp = onRelease;
+//		mouseListener.onMouseDown = onPress;
+//		mouseListener.onMouseUp = onRelease;
 		mouseListener.onMouseMove = onMouseMove;
 		Mouse.addListener(mouseListener);
 		
@@ -81,45 +81,45 @@ class Main
 	function onPress()
 	{
 		// mouse outside window
-		if (inst.cont._xmouse < 0 ||
-			inst.cont._ymouse < 0 ||
-			inst.cont._xmouse > inst.cont._width ||
-			inst.cont._ymouse > inst.cont._height)
+		if (cont._xmouse < 0 ||
+			cont._ymouse < 0 ||
+			cont._xmouse > cont._width ||
+			cont._ymouse > cont._height)
 			return;
 
-		inst.isDrag = true;
-		inst.xDrag = inst.cont._xmouse;
-		inst.yDrag = inst.cont._ymouse;
+		isDrag = true;
+		xDrag = cont._xmouse;
+		yDrag = cont._ymouse;
 /*		
-		UtilsBase.PrintChatText("PRESS " + inst.isDrag +
-			" " + inst.xDrag + "," + inst.yDrag +
-			" " + inst.cont._width + "," + inst.cont._height);
+		UtilsBase.PrintChatText("PRESS " + isDrag +
+			" " + xDrag + "," + yDrag +
+			" " + cont._width + "," + cont._height);
 */
 	}
 	
 	// drag window
 	function onMouseMove(id: Number, x: Number, y: Number)
 	{
-//		UtilsBase.PrintChatText("isDrag:" + inst.isDrag +
+//		UtilsBase.PrintChatText("isDrag:" + isDrag +
 //			" X " + isDrag);
-		if (!inst.isDrag)
+		if (!isDrag)
 			return;
-		inst.cont._x += inst.cont._xmouse - inst.xDrag;
-		inst.cont._y += inst.cont._ymouse - inst.yDrag;
+		cont._x += cont._xmouse - xDrag;
+		cont._y += cont._ymouse - yDrag;
 	}
 	
 	// stop dragging
 	function onRelease()
 	{
 		// mouse outside window
-		if (inst.cont._xmouse < 0 ||
-			inst.cont._ymouse < 0 ||
-			inst.cont._xmouse > inst.cont._width ||
-			inst.cont._ymouse > inst.cont._height)
+		if (cont._xmouse < 0 ||
+			cont._ymouse < 0 ||
+			cont._xmouse > cont._width ||
+			cont._ymouse > cont._height)
 			return;
 
-		inst.isDrag = false;
-//		UtilsBase.PrintChatText("RELEASE " + inst.isDrag);
+		isDrag = false;
+//		UtilsBase.PrintChatText("RELEASE " + isDrag);
 	}
    
 	// redraw all text
@@ -162,7 +162,7 @@ class Main
 			text += "\n";
 		}
 		
-		inst.textField.text = text;
+		textField.text = text;
 	}
 	
 
