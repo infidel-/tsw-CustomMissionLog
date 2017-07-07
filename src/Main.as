@@ -9,18 +9,26 @@ import com.Utils.Point;
 
 class Main
 {
+	// made all fields static because of weird scope bugs
 	public static var cont: MovieClip;
 	public static var textField: TextField;
+	public static var textFormatButton: TextFormat;
 	public static var isDrag: Boolean;
 	public static var xDrag: Number;
 	public static var yDrag: Number;
+	public static var curButtonX: Number;
+	public static var btnScaleDown: MovieClip;
+	public static var btnScaleUp: MovieClip;
 	
 	public function Main(swfRoot:MovieClip)
     {
 		isDrag = false;
+		curButtonX = 5;
 		
-		cont = swfRoot.createEmptyMovieClip("missionLogContainer", 1);
-		var tt = cont.createTextField("missionLog", 1, 0, 0, 500, 200);
+		cont = swfRoot.createEmptyMovieClip("missionLogContainer", 
+			swfRoot.getNextHighestDepth());
+		var tt = cont.createTextField("missionLog", 
+			cont.getNextHighestDepth(), 0, 0, 500, 200);
 		var t: TextField = tt;
 		cont._x = 10;
 		cont._y = 50;
@@ -36,7 +44,13 @@ class Main
 		t.backgroundColor = 0x000000;
 		t.background = true;
 		textField = t;
-	  
+
+		// create all buttons
+		textFormatButton = new TextFormat(
+			"lib.Aller.ttf", 16, 0xBBFFFF, true, false, false);
+		btnScaleDown = createButton('btnScaleDown', '-');
+		btnScaleUp = createButton('btnScaleUp', '+');
+		
 		// Redraw on all quest signals that are not quest goals.
 		// does not work btw vOv
 		Quests.SignalQuestAvailable.Connect(redraw, this)
@@ -57,8 +71,6 @@ class Main
 		cont.onRelease = onRelease;
 		cont.onPress = onPress;
 		var mouseListener = new Object;
-//		mouseListener.onMouseDown = onPress;
-//		mouseListener.onMouseUp = onRelease;
 		mouseListener.onMouseMove = onMouseMove;
 		Mouse.addListener(mouseListener);
 		
@@ -72,36 +84,68 @@ class Main
 //      var c:Character = Character.GetClientCharacter();
 //      t.text = "Hello " + c.GetName() + ". Welcome!";
 
-		// hax: redraw window every 2 seconds
-		setInterval(redraw, 2000);
+		// hax: redraw window every 1 seconds
+		setInterval(redraw, 1000);
     }
 	
 	
-	// start dragging
+	// create simple button with text on it
+	function createButton(name: String, s: String): MovieClip
+	{
+		var btn = cont.createEmptyMovieClip(name, 
+			cont.getNextHighestDepth());
+		var tt = btn.createTextField(name + "Text",
+			cont.getNextHighestDepth(),
+			curButtonX, 0, 20, 20);
+		curButtonX += 16;
+		var t: TextField = tt;
+		t.autoSize = "left";
+		t.backgroundColor = 0x111111;
+		t.background = true;
+		t.setNewTextFormat(textFormatButton);
+		t.text = s;
+		
+		return btn;
+	}
+	
+	
+	static function onPressButton(): Boolean
+	{
+		// scale up, +
+		if (btnScaleUp.hitTest(_root._xmouse, _root._ymouse, true))
+		{
+			cont._xscale += 10;
+			cont._yscale += 10;
+			return true;
+		}
+
+		// scale down, -
+		if (btnScaleDown.hitTest(_root._xmouse, _root._ymouse, true))
+		{
+			cont._xscale -= 10;
+			cont._yscale -= 10;
+			return true;
+		}
+		
+		return false;
+	}
+	
+	// pressing window and buttons
 	function onPress()
 	{
-		// mouse outside window
-		if (cont._xmouse < 0 ||
-			cont._ymouse < 0 ||
-			cont._xmouse > cont._width ||
-			cont._ymouse > cont._height)
+		// check for button presses
+		if (onPressButton())
 			return;
-
+		
+		// start dragging
 		isDrag = true;
 		xDrag = cont._xmouse;
 		yDrag = cont._ymouse;
-/*		
-		UtilsBase.PrintChatText("PRESS " + isDrag +
-			" " + xDrag + "," + yDrag +
-			" " + cont._width + "," + cont._height);
-*/
 	}
 	
 	// drag window
 	function onMouseMove(id: Number, x: Number, y: Number)
 	{
-//		UtilsBase.PrintChatText("isDrag:" + isDrag +
-//			" X " + isDrag);
 		if (!isDrag)
 			return;
 		cont._x += cont._xmouse - xDrag;
@@ -111,15 +155,7 @@ class Main
 	// stop dragging
 	function onRelease()
 	{
-		// mouse outside window
-		if (cont._xmouse < 0 ||
-			cont._ymouse < 0 ||
-			cont._xmouse > cont._width ||
-			cont._ymouse > cont._height)
-			return;
-
 		isDrag = false;
-//		UtilsBase.PrintChatText("RELEASE " + isDrag);
 	}
    
 	// redraw all text
@@ -127,7 +163,7 @@ class Main
 	{
 //		UtilsBase.PrintChatText("REDRAW");
 		var quests:Array = Quests.GetAllActiveQuests();
-		var text:String = "";
+		var text:String = "\n"; // skip one line for buttons
 		for ( var i = 0; i < quests.length; ++i )
 		{
 			// basic mission info
@@ -146,6 +182,9 @@ class Main
 			for (var goalIdx = 0; goalIdx < goals.length; ++goalIdx)
 			{
 				var goal:com.GameInterface.QuestGoal = goals[ goalIdx ];
+				// goal completed, skipping
+				if (goal.m_RepeatCount == goal.m_SolvedTimes )
+					continue;
 		   
 				if ( quest.m_CurrentTask.m_CurrentPhase == goal.m_Phase )
 				{

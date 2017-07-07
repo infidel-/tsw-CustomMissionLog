@@ -49,11 +49,7 @@
   <!-- Executed before build -->
   <preBuildCommand />
   <!-- Executed after build -->
-  <postBuildCommand alwaysRun="False">xcopy "$(ProjectDir)\deployment\Flash\*.*" "D:\Steam\steamapps\common\The Secret World\Data\Gui\Customized\Flash\" /e /y
-
-xcopy "$(ProjectDir)\deployment\Scripts\*.*" "D:\Steam\steamapps\common\The Secret World\Scripts\" /e /y
-
-xcopy "$(ProjectDir)\src\mod\*.*" "D:\Steam\steamapps\common\The Secret World\Data\Gui\Customized\Flash\CustomMissionLog\" /e /y
+  <postBuildCommand alwaysRun="False">xcopy "$(ProjectDir)\src\mod\*.*" "D:\Steam\steamapps\common\The Secret World\Data\Gui\Customized\Flash\CustomMissionLog\" /e /y
 
 xcopy "$(OutputFile)" "D:\Steam\steamapps\common\The Secret World\Data\Gui\Customized\Flash\CustomMissionLog\" /e /y</postBuildCommand>
   <!-- Other project options -->
