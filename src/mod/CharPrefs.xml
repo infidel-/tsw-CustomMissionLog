@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?> 
 <Root>
   <Value name="CustomMissionLog" value="true" />
+  <Value name="CustomMissionLog.x" value="10" />
+  <Value name="CustomMissionLog.y" value="50" />
+  <Value name="CustomMissionLog.scale" value="100" />
+  <Value name="CustomMissionLog.desc" value="0" />
   <Archive name="CustomMissionLog_Cfg" />
 </Root>
