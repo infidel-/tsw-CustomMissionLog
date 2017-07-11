@@ -105,7 +105,7 @@ class Main
 		
 		// text format
 		fmtDefault = new TextFormat("lib.Aller.ttf", 18, 0xCCCCCC, true, false, false);
-		fmtTitle = new TextFormat("lib.Aller.ttf", 19, 0xFFFFFF, true, false, false);
+		fmtTitle = new TextFormat("lib.Aller.ttf", 20, 0xFFFFFF, true, false, false);
 		fmtGoal = new TextFormat("lib.Aller.ttf", 18, 0x63f99a, true, false, false);
 		fmtTypeAction = new TextFormat("lib.Aller.ttf", 18, 0xf04949, true, false, false);
 		fmtTypeInvestigation = new TextFormat("lib.Aller.ttf", 18, 0x54ae16, true, false, false);
@@ -260,52 +260,42 @@ class Main
 		var text:String = "\n"; // skip one line for buttons
 		ranges = new Array();
 
+		// form a temp mission array
+		var tmp = new Array();
 		for ( var i = 0; i < quests.length; ++i )
-		{
-			// basic mission info
-			var quest:Quest = quests[i];
-			
-			var missionType:String = GUI.Mission.MissionUtils.MissionTypeToString(quest.m_MissionType);
-			var tier:String = quest.m_CurrentTask.m_Tier + "/" + quest.m_TierMax;
-			addString(text, fmtTitle, quest.m_MissionName);
-			text += quest.m_MissionName + " ";
-			addString(text, getTypeFormat(quest.m_MissionType),
-				"<" + missionType + ">");
-			text += "<" + missionType + "> [" +
-				tier + "]\n";
-				
-			// skip global mission description if desc
-			// 0 - all descriptions
-			// 1 - skip main story
-			// 2 - skip all
-			var val = valDesc.GetValue(); 
-			if (val == 0 || (val == 1 && quest.m_MissionType != _global.Enums.MainQuestType.e_Story))
-				text += quest.m_CurrentTask.m_Desc + "\n";
-		
-			// print mission goals list
-			var goals:Array = quest.m_CurrentTask.m_Goals;
-			for (var goalIdx = 0; goalIdx < goals.length; ++goalIdx)
-			{
-				var goal:com.GameInterface.QuestGoal = goals[ goalIdx ];
-				// goal completed, skipping
-				if (goal.m_RepeatCount == goal.m_SolvedTimes )
-					continue;
-		   
-				if ( quest.m_CurrentTask.m_CurrentPhase == goal.m_Phase )
-				{
-					var goalDesc:String = com.Utils.LDBFormat.Translate( goal.m_Name );
-					if (goal.m_RepeatCount > 1 && goal.m_SolvedTimes < goal.m_RepeatCount)
-					{
-						var numDesc:String = " (" + goal.m_SolvedTimes + "/" + goal.m_RepeatCount + ")";
-						goalDesc += numDesc;
-					}
-					addString(text, fmtGoal, goalDesc);
-					text += goalDesc + "\n";
-				}
-			}
+			tmp.push(quests[i]);
 
-			text += "\n";
+		// main story first
+		for ( var i = 0; i < tmp.length; ++i )
+		{
+			var quest = tmp[i];
+			if (quest.m_MissionType != _global.Enums.MainQuestType.e_Story &&
+				quest.m_MissionType != _global.Enums.MainQuestType.e_StoryRepeat)
+				continue;
+
+			text = addMissionText(text, quest);
+			delete tmp[i];
 		}
+
+		// action/sabotage/investigation next
+		for ( var i = 0; i < tmp.length; ++i )
+		{
+			var quest = tmp[i];
+			if (quest.m_MissionType != _global.Enums.MainQuestType.e_Story &&
+				quest.m_MissionType != _global.Enums.MainQuestType.e_Action &&
+				quest.m_MissionType != _global.Enums.MainQuestType.e_Sabotage &&
+				quest.m_MissionType != _global.Enums.MainQuestType.e_Investigation &&
+				quest.m_MissionType != _global.Enums.MainQuestType.e_Raid)
+				continue;
+
+			text = addMissionText(text, quest);
+			delete tmp[i];
+		}
+
+		// the rest
+		for ( var i = 0; i < tmp.length; ++i )
+			if (tmp[i] != undefined)
+				text = addMissionText(text, tmp[i]);
 		
 		textField.text = text;
 		for ( var i = 0; i < ranges.length; ++i )
@@ -314,9 +304,57 @@ class Main
 //			UtilsBase.PrintChatText('' + r.start + ' ' + r.end);
 			textField.setTextFormat(r.start, r.end, r.fmt);
 		}
-//		textField.setTextFormat(100, 20, fmtTitle);
 	}
-	
+
+
+	// add mission text to full window text and return it
+	static function addMissionText(text: String, quest: Quest): String
+	{
+		// basic mission info
+		var missionType:String = GUI.Mission.MissionUtils.MissionTypeToString(quest.m_MissionType);
+		var tier:String = quest.m_CurrentTask.m_Tier + "/" + quest.m_TierMax;
+		addString(text, fmtTitle, quest.m_MissionName);
+		text += quest.m_MissionName + " ";
+		addString(text, getTypeFormat(quest.m_MissionType),
+			"<" + missionType + ">");
+		text += "<" + missionType + "> [" +
+			tier + "]\n";
+
+		// skip global mission description if desc
+		// 0 - all descriptions
+		// 1 - skip main story
+		// 2 - skip all
+		var val = valDesc.GetValue(); 
+		if (val == 0 || (val == 1 && quest.m_MissionType != _global.Enums.MainQuestType.e_Story))
+			text += quest.m_CurrentTask.m_Desc + "\n";
+
+		// print mission goals list
+		var goals:Array = quest.m_CurrentTask.m_Goals;
+		for (var goalIdx = 0; goalIdx < goals.length; ++goalIdx)
+		{
+			var goal:com.GameInterface.QuestGoal = goals[ goalIdx ];
+			// goal completed, skipping
+			if (goal.m_RepeatCount == goal.m_SolvedTimes )
+				continue;
+
+			if ( quest.m_CurrentTask.m_CurrentPhase == goal.m_Phase )
+			{
+				var goalDesc:String = com.Utils.LDBFormat.Translate( goal.m_Name );
+				if (goal.m_RepeatCount > 1 && goal.m_SolvedTimes < goal.m_RepeatCount)
+				{
+					var numDesc:String = " (" + goal.m_SolvedTimes + "/" + goal.m_RepeatCount + ")";
+					goalDesc += numDesc;
+				}
+				addString(text, fmtGoal, goalDesc);
+				text += goalDesc + "\n";
+			}
+		}
+
+		text += "\n";
+
+		return text;
+	}
+
 
 	public static var inst: Main;
 	public static function main(swfRoot:MovieClip):Void
