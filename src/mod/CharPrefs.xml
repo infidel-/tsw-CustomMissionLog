@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?> 
 <Root>
   <Value name="CustomMissionLog" value="true" />
+  <Value name="CustomMissionLog.min" value="false" />
   <Value name="CustomMissionLog.x" value="10" />
   <Value name="CustomMissionLog.y" value="50" />
   <Value name="CustomMissionLog.width" value="500" />

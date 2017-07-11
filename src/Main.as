@@ -26,6 +26,7 @@ class Main
 	public static var btnScaleUp: MovieClip;
 	public static var btnDesc: MovieClip;
 	public static var txtDesc: TextField;
+	public static var btnMinimize: MovieClip;
 	public static var btnResize: MovieClip;
 
 	public static var fmtDefault: TextFormat;
@@ -44,6 +45,7 @@ class Main
 	public static var valY: DistributedValue;
 	public static var valScale: DistributedValue;
 	public static var valWidth: DistributedValue;
+	public static var valMin: DistributedValue;
 	
 	public function Main(swfRoot:MovieClip)
     {
@@ -51,13 +53,13 @@ class Main
 		isResize = false;
 		curButtonX = 5;
 
-		valWidth = DistributedValue.Create("CustomMissionLog.width");
-
 		// load config values
 		valDesc = DistributedValue.Create("CustomMissionLog.desc");
 		valX = DistributedValue.Create("CustomMissionLog.x");
 		valY = DistributedValue.Create("CustomMissionLog.y");
 		valScale = DistributedValue.Create("CustomMissionLog.scale");
+		valWidth = DistributedValue.Create("CustomMissionLog.width");
+		valMin = DistributedValue.Create("CustomMissionLog.min");
 
 		cont = swfRoot.createEmptyMovieClip("missionLogContainer", 
 			swfRoot.getNextHighestDepth());
@@ -85,6 +87,7 @@ class Main
 		btnScaleDown = createButton('btnScaleDown', '-');
 		btnScaleUp = createButton('btnScaleUp', '+');
 		btnDesc = createButton('btnDesc', 'DESC' + valDesc.GetValue());
+		btnMinimize = createButton('btnMinimize', 'MIN');
 		btnResize = createButton('btnResize', 'RESIZE');
 
 		// Redraw on all quest signals that are not quest goals.
@@ -185,6 +188,7 @@ class Main
 			valScale.SetValue(scale);
 			cont._xscale = scale;
 			cont._yscale = scale;
+			inst.redraw();
 			return true;
 		}
 
@@ -196,6 +200,7 @@ class Main
 			valScale.SetValue(scale);
 			cont._xscale = scale;
 			cont._yscale = scale;
+			inst.redraw();
 			return true;
 		}
 
@@ -210,6 +215,14 @@ class Main
 			inst.redraw();
 			txtDesc.text = 'DESC' + val;
 
+			return true;
+		}
+
+		// minimize
+		if (btnMinimize.hitTest(_root._xmouse, _root._ymouse, true))
+		{
+			valMin.SetValue(!valMin.GetValue());
+			inst.redraw();
 			return true;
 		}
 
@@ -292,6 +305,13 @@ class Main
 	// redraw all text
 	public function redraw()
 	{
+		// window minified
+		if (valMin.GetValue())
+		{
+			textField.text = '\n';
+			return;
+		}
+
 //		UtilsBase.PrintChatText("REDRAW");
 		var quests:Array = Quests.GetAllActiveQuests();
 		var text:String = "\n"; // skip one line for buttons
@@ -342,6 +362,13 @@ class Main
 //			UtilsBase.PrintChatText('' + r.start + ' ' + r.end);
 			textField.setTextFormat(r.start, r.end, r.fmt);
 		}
+
+		// pull up if we grow too large
+		if (cont._y + cont._height > Stage.height - 10)
+			cont._y = Stage.height - 10 - cont._height;
+		// but don't grow outside
+		if (cont._y < 30)
+			cont._y = 30;
 	}
 
 
