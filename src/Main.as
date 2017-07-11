@@ -18,11 +18,15 @@ class Main
 	public static var isDrag: Boolean;
 	public static var xDrag: Number;
 	public static var yDrag: Number;
+	public static var isResize: Boolean;
+	public static var xResize: Number;
+	public static var oldWidth: Number;
 	public static var curButtonX: Number;
 	public static var btnScaleDown: MovieClip;
 	public static var btnScaleUp: MovieClip;
 	public static var btnDesc: MovieClip;
 	public static var txtDesc: TextField;
+	public static var btnResize: MovieClip;
 
 	public static var fmtDefault: TextFormat;
 	public static var fmtTitle: TextFormat;
@@ -39,11 +43,15 @@ class Main
 	public static var valX: DistributedValue;
 	public static var valY: DistributedValue;
 	public static var valScale: DistributedValue;
+	public static var valWidth: DistributedValue;
 	
 	public function Main(swfRoot:MovieClip)
     {
 		isDrag = false;
+		isResize = false;
 		curButtonX = 5;
+
+		valWidth = DistributedValue.Create("CustomMissionLog.width");
 
 		// load config values
 		valDesc = DistributedValue.Create("CustomMissionLog.desc");
@@ -54,14 +62,12 @@ class Main
 		cont = swfRoot.createEmptyMovieClip("missionLogContainer", 
 			swfRoot.getNextHighestDepth());
 		var tt = cont.createTextField("missionLog", 
-			cont.getNextHighestDepth(), 0, 0, 500, 200);
+			cont.getNextHighestDepth(), 0, 0, valWidth.GetValue(), 200);
 		var t: TextField = tt;
 		cont._x = valX.GetValue();
 		cont._y = valY.GetValue();
 		cont._xscale = valScale.GetValue();
 		cont._yscale = valScale.GetValue();
-		t._width = 500;
-		t._height = 200;
 		t._name = "missionLog";
 		t._alpha = 80;
 		t.autoSize = "left";
@@ -79,6 +85,7 @@ class Main
 		btnScaleDown = createButton('btnScaleDown', '-');
 		btnScaleUp = createButton('btnScaleUp', '+');
 		btnDesc = createButton('btnDesc', 'DESC' + valDesc.GetValue());
+		btnResize = createButton('btnResize', 'RESIZE');
 
 		// Redraw on all quest signals that are not quest goals.
 		// does not work btw vOv
@@ -101,6 +108,7 @@ class Main
 		cont.onPress = onPress;
 		var mouseListener = new Object;
 		mouseListener.onMouseMove = onMouseMove;
+		mouseListener.onMouseUp = onReleaseGlobal;
 		Mouse.addListener(mouseListener);
 		
 		// text format
@@ -212,6 +220,19 @@ class Main
 	// pressing window and buttons
 	function onPress()
 	{
+		// start resizing
+		if (btnResize.hitTest(_root._xmouse, _root._ymouse, true))
+		{
+			isResize = true;
+			xResize = cont._xmouse;
+			oldWidth = textField._width;
+			return;
+		}
+
+		// check for button presses
+		if (onPressButton())
+			return;
+
 		// start dragging
 		isDrag = true;
 		xDrag = cont._xmouse;
@@ -219,23 +240,39 @@ class Main
 	}
 
 
-	// drag window
+	// drag/resize window
 	function onMouseMove(id: Number, x: Number, y: Number)
 	{
-		if (!isDrag)
-			return;
-		cont._x += cont._xmouse - xDrag;
-		cont._y += cont._ymouse - yDrag;
+		// drag
+		if (isDrag)
+		{
+			cont._x += cont._xmouse - xDrag;
+			cont._y += cont._ymouse - yDrag;
+		}
+
+		// resize
+		else if (isResize)
+		{
+			textField._width = oldWidth + textField._xmouse - xResize;
+		}
 	}
-	
-	// stop dragging
+
+	// button presses
 	function onRelease()
 	{
 		// check for button presses
-		onPressButton();
-		
+		//onPressButton();
+	}
+	
+	// stop dragging/resizing
+	function onReleaseGlobal()
+	{
+		// stop resizing
+		isResize = false;
+		valWidth.SetValue(textField._width);
+
+		// stop dragging and save window position
 		isDrag = false;
-		
 		valX.SetValue(cont._x);
 		valY.SetValue(cont._y);
 	}
@@ -262,11 +299,11 @@ class Main
 
 		// form a temp mission array
 		var tmp = new Array();
-		for ( var i = 0; i < quests.length; ++i )
+		for (var i = 0; i < quests.length; ++i)
 			tmp.push(quests[i]);
 
 		// main story first
-		for ( var i = 0; i < tmp.length; ++i )
+		for (var i = 0; i < tmp.length; ++i)
 		{
 			var quest = tmp[i];
 			if (quest.m_MissionType != _global.Enums.MainQuestType.e_Story &&
@@ -278,7 +315,7 @@ class Main
 		}
 
 		// action/sabotage/investigation next
-		for ( var i = 0; i < tmp.length; ++i )
+		for (var i = 0; i < tmp.length; ++i)
 		{
 			var quest = tmp[i];
 			if (quest.m_MissionType != _global.Enums.MainQuestType.e_Story &&
@@ -293,12 +330,13 @@ class Main
 		}
 
 		// the rest
-		for ( var i = 0; i < tmp.length; ++i )
+		for (var i = 0; i < tmp.length; ++i)
 			if (tmp[i] != undefined)
 				text = addMissionText(text, tmp[i]);
 		
+		// set text and mark ranges for styles
 		textField.text = text;
-		for ( var i = 0; i < ranges.length; ++i )
+		for (var i = 0; i < ranges.length; ++i)
 		{
 			var r = ranges[i];
 //			UtilsBase.PrintChatText('' + r.start + ' ' + r.end);
