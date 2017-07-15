@@ -57,6 +57,9 @@ class Main
 		curButtonX = 5;
 
 		// load config values
+/*
+		var v:DistributedValue = DistributedValue.Create("ActiveQuestID");
+		v.SignalChanged.Connect(function () { inst.redraw();  UtilsBase.PrintChatText('changed!'); }, this);*/
 		valX = DistributedValue.Create("CustomMissionLog.x");
 		valY = DistributedValue.Create("CustomMissionLog.y");
 		valScale = DistributedValue.Create("CustomMissionLog.scale");
@@ -301,6 +304,11 @@ class Main
 	// redraw all text
 	public function redraw()
 	{
+		// show only single mission
+		var singleMissionID = 0;
+		if (valSingleMission.GetValue() == 1)
+			singleMissionID = DistributedValue.GetDValue("ActiveQuestID");
+
 		// window minified
 		if (valMin.GetValue())
 		{
@@ -316,7 +324,8 @@ class Main
 		// form a temp mission array
 		var tmp = new Array();
 		for (var i = 0; i < quests.length; ++i)
-			tmp.push(quests[i]);
+			if (singleMissionID == 0 || quests[i].m_ID == singleMissionID)
+				tmp.push(quests[i]);
 
 		// main story first
 		for (var i = 0; i < tmp.length; ++i)
