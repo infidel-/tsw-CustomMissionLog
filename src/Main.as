@@ -391,7 +391,8 @@ class Main
 		text += quest.m_MissionName + " ";
 		addString(text, getTypeFormat(quest.m_MissionType),
 			"<" + missionType + ">");
-		text += "<" + missionType + "> [" +
+		text += "<" + missionType + "> [L" +
+			quest.m_CurrentTask.m_Difficulty + "] [" +
 			tier + "]\n";
 
 		// skip global mission description if desc
