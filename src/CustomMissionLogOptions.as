@@ -83,8 +83,6 @@ class CustomMissionLogOptions
 			tf.autoSize = "left";
 			tf.html = true;
 			tf.embedFonts = true;
-			tf.backgroundColor = 0x000000;
-			tf.background = true;
 			tf.setNewTextFormat(format);
 			tf._width = tf.textWidth;
 			tf.text = tpl.name;
@@ -136,6 +134,12 @@ class CustomMissionLogOptions
 				UtilsBase.PrintChatText('FULL:' + DistributedValue.GetDValue("CustomMissionLog_Cfg"));
 */
 				main.redraw();
+
+				// apply transparency
+				if (o.id == 'transparent')
+				{
+					Main.cont['cmlText'].background = (o.value == 0);
+				}
 			}
 		}
 

@@ -66,16 +66,15 @@ class Main
 		valTransparent = DistributedValue.Create("CustomMissionLog.transparent");
 		valSingleMission = DistributedValue.Create("CustomMissionLog.singleMission");
 
-		cont = swfRoot.createEmptyMovieClip("missionLogContainer", 
+		cont = swfRoot.createEmptyMovieClip("cmlContainer", 
 			swfRoot.getNextHighestDepth());
-		var tt = cont.createTextField("missionLog", 
+		var tt = cont.createTextField("cmlText", 
 			cont.getNextHighestDepth(), 0, 0, valWidth.GetValue(), 200);
 		var t: TextField = tt;
 		cont._x = valX.GetValue();
 		cont._y = valY.GetValue();
 		cont._xscale = valScale.GetValue();
 		cont._yscale = valScale.GetValue();
-		t._name = "missionLog";
 		t._alpha = 80;
 		t.autoSize = "left";
 		t.html = true;
@@ -83,7 +82,7 @@ class Main
 		t.multiline = true;
 		t.wordWrap = true;
 		t.backgroundColor = 0x000000;
-		t.background = true;
+		t.background = (valTransparent.GetValue() == 0);
 		textField = t;
 
 		// create all buttons
