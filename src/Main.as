@@ -1,5 +1,4 @@
 import TextField.StyleSheet;
-import com.GameInterface.Game.Character;
 import com.GameInterface.Quest;
 import com.GameInterface.QuestTask;
 import com.GameInterface.Quests;
@@ -24,10 +23,9 @@ class Main
 	public static var curButtonX: Number;
 	public static var btnScaleDown: MovieClip;
 	public static var btnScaleUp: MovieClip;
-	public static var btnDesc: MovieClip;
-	public static var txtDesc: TextField;
 	public static var btnMinimize: MovieClip;
 	public static var btnResize: MovieClip;
+	public static var btnOptions: MovieClip;
 
 	public static var fmtDefault: TextFormat;
 	public static var fmtTitle: TextFormat;
@@ -40,12 +38,17 @@ class Main
 	public static var fmtTypeRaid: TextFormat;
 	public static var fmtTypeSide: TextFormat;
 	
-	public static var valDesc: DistributedValue;
 	public static var valX: DistributedValue;
 	public static var valY: DistributedValue;
 	public static var valScale: DistributedValue;
 	public static var valWidth: DistributedValue;
 	public static var valMin: DistributedValue;
+	
+	public static var valDesc: DistributedValue;
+	public static var valTransparent: DistributedValue;
+	public static var valSingleMission: DistributedValue;
+	public static var options: CustomMissionLogOptions;
+
 	
 	public function Main(swfRoot:MovieClip)
     {
@@ -54,12 +57,14 @@ class Main
 		curButtonX = 5;
 
 		// load config values
-		valDesc = DistributedValue.Create("CustomMissionLog.desc");
 		valX = DistributedValue.Create("CustomMissionLog.x");
 		valY = DistributedValue.Create("CustomMissionLog.y");
 		valScale = DistributedValue.Create("CustomMissionLog.scale");
 		valWidth = DistributedValue.Create("CustomMissionLog.width");
 		valMin = DistributedValue.Create("CustomMissionLog.min");
+		valDesc = DistributedValue.Create("CustomMissionLog.desc");
+		valTransparent = DistributedValue.Create("CustomMissionLog.transparent");
+		valSingleMission = DistributedValue.Create("CustomMissionLog.singleMission");
 
 		cont = swfRoot.createEmptyMovieClip("missionLogContainer", 
 			swfRoot.getNextHighestDepth());
@@ -86,7 +91,7 @@ class Main
 			"lib.Aller.ttf", 16, 0xBBFFFF, true, false, false);
 		btnScaleDown = createButton('btnScaleDown', '-');
 		btnScaleUp = createButton('btnScaleUp', '+');
-		btnDesc = createButton('btnDesc', 'DESC' + valDesc.GetValue());
+		btnOptions = createButton('btnOptions', 'OPTS');
 		btnMinimize = createButton('btnMinimize', 'MIN');
 		btnResize = createButton('btnResize', 'RESIZE');
 
@@ -127,6 +132,8 @@ class Main
 		fmtTypeSide = new TextFormat("lib.Aller.ttf", 18, 0xBBBBBB, true, false, false);
 		t.setNewTextFormat(fmtTitle);
 		t.setNewTextFormat(fmtDefault);
+		
+		options = new CustomMissionLogOptions(swfRoot, this);
 
 		// hax: redraw window every 1 seconds
 		setInterval(redraw, 1000);
@@ -171,9 +178,6 @@ class Main
 		t.text = s;
 		curButtonX += t.textWidth + 5;
 		
-		if (name == 'btnDesc')
-			txtDesc = t;
-		
 		return btn;
 	}
 
@@ -204,25 +208,18 @@ class Main
 			return true;
 		}
 
-		// quest description
-		if (btnDesc.hitTest(_root._xmouse, _root._ymouse, true))
-		{
-			var val = valDesc.GetValue();
-			val += 1;
-			if (val > 2)
-				val = 0;
-			valDesc.SetValue(val);
-			inst.redraw();
-			txtDesc.text = 'DESC' + val;
-
-			return true;
-		}
-
 		// minimize
 		if (btnMinimize.hitTest(_root._xmouse, _root._ymouse, true))
 		{
 			valMin.SetValue(!valMin.GetValue());
 			inst.redraw();
+			return true;
+		}
+
+		// options window
+		if (btnOptions.hitTest(_root._xmouse, _root._ymouse, true))
+		{
+			options.show(cont);
 			return true;
 		}
 
