@@ -238,6 +238,8 @@ class Main
 			isResize = true;
 			xResize = cont._xmouse;
 			oldWidth = textField._width;
+			textField.background = true;
+			textField.backgroundColor = 0x552222;
 			return;
 		}
 
@@ -281,6 +283,8 @@ class Main
 	{
 		// stop resizing
 		isResize = false;
+		textField.background = (valTransparent.GetValue() == 0);
+		textField.backgroundColor = 0;
 		valWidth.SetValue(textField._width);
 
 		// stop dragging and save window position
