@@ -7,7 +7,6 @@ import com.GameInterface.DistributedValue;
 import com.Utils.LDBFormat;
 import com.Utils.Point;
  
-
 class Main
 {
 	// made all fields static because of weird scope bugs
