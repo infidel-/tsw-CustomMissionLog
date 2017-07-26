@@ -53,7 +53,7 @@ class CustomMissionLogOptions
 			"lib.Aller.ttf", 18, 0xCCCCCC, true, false,
 			false);
 		t.setNewTextFormat(format);
-		textField.text = '                         OPTIONS\n\n\n\n\n';
+		textField.text = '                         OPTIONS\n\n\n\n\n\n';
 		
 		// button text format
 		textFormatButton = new TextFormat(
@@ -63,7 +63,8 @@ class CustomMissionLogOptions
 		var optionTemplates = new Array(
 			{ id: 'desc', name: 'Tier text (0/1/2)', max: 2 },
 			{ id: 'transparent', name: 'Window transparency', max: 1 },
-			{ id: 'singleMission', name: 'Current mission only', max: 1  }
+			{ id: 'singleMission', name: 'Current mission only', max: 1 },
+			{ id: 'lockWindow', name: 'Lock window', max: 1 }
 		);
 		for (var i: Number = 0; i < optionTemplates.length; i++)
 		{

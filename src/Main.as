@@ -46,6 +46,7 @@ class Main
 	public static var valDesc: DistributedValue;
 	public static var valTransparent: DistributedValue;
 	public static var valSingleMission: DistributedValue;
+	public static var valLockWindow: DistributedValue;
 	public static var options: CustomMissionLogOptions;
 
 	
@@ -64,9 +65,11 @@ class Main
 		valScale = DistributedValue.Create("CustomMissionLog.scale");
 		valWidth = DistributedValue.Create("CustomMissionLog.width");
 		valMin = DistributedValue.Create("CustomMissionLog.min");
+
 		valDesc = DistributedValue.Create("CustomMissionLog.desc");
 		valTransparent = DistributedValue.Create("CustomMissionLog.transparent");
 		valSingleMission = DistributedValue.Create("CustomMissionLog.singleMission");
+		valLockWindow = DistributedValue.Create("CustomMissionLog.lockWindow");
 
 		cont = swfRoot.createEmptyMovieClip("cmlContainer", 
 			swfRoot.getNextHighestDepth());
@@ -247,9 +250,12 @@ class Main
 			return;
 
 		// start dragging
-		isDrag = true;
-		xDrag = cont._xmouse;
-		yDrag = cont._ymouse;
+		if (!valLockWindow.GetValue())
+		{
+			isDrag = true;
+			xDrag = cont._xmouse;
+			yDrag = cont._ymouse;
+		}
 	}
 
 
