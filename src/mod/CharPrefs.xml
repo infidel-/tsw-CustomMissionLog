@@ -7,6 +7,7 @@
   <Value name="CustomMissionLog.width" value="500" />
   <Value name="CustomMissionLog.scale" value="100" />
 
+  <Value name="CustomMissionLog.hideButtons" value="0" />
   <Value name="CustomMissionLog.desc" value="0" />
   <Value name="CustomMissionLog.transparent" value="0" />
   <Value name="CustomMissionLog.singleMission" value="0" />

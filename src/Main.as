@@ -20,6 +20,8 @@ class Main
 	public static var xResize: Number;
 	public static var oldWidth: Number;
 	public static var curButtonX: Number;
+
+	public static var btnToggle: MovieClip;
 	public static var btnScaleDown: MovieClip;
 	public static var btnScaleUp: MovieClip;
 	public static var btnMinimize: MovieClip;
@@ -43,6 +45,7 @@ class Main
 	public static var valWidth: DistributedValue;
 	public static var valMin: DistributedValue;
 	
+	public static var valHideButtons: DistributedValue;
 	public static var valDesc: DistributedValue;
 	public static var valTransparent: DistributedValue;
 	public static var valSingleMission: DistributedValue;
@@ -66,6 +69,7 @@ class Main
 		valWidth = DistributedValue.Create("CustomMissionLog.width");
 		valMin = DistributedValue.Create("CustomMissionLog.min");
 
+		valHideButtons = DistributedValue.Create("CustomMissionLog.hideButtons");
 		valDesc = DistributedValue.Create("CustomMissionLog.desc");
 		valTransparent = DistributedValue.Create("CustomMissionLog.transparent");
 		valSingleMission = DistributedValue.Create("CustomMissionLog.singleMission");
@@ -93,11 +97,20 @@ class Main
 		// create all buttons
 		textFormatButton = new TextFormat(
 			"lib.Aller.ttf", 16, 0xBBFFFF, true, false, false);
+		btnToggle = createButton('btnToggle', (valHideButtons.GetValue() ? '<' : '>'));
 		btnScaleDown = createButton('btnScaleDown', '-');
 		btnScaleUp = createButton('btnScaleUp', '+');
 		btnOptions = createButton('btnOptions', 'OPTS');
 		btnMinimize = createButton('btnMinimize', 'MIN');
 		btnResize = createButton('btnResize', 'RESIZE');
+
+		// hide buttons if needed
+		var buttonsHidden: Boolean = valHideButtons.GetValue();
+		btnScaleDown._visible = buttonsHidden;
+		btnScaleUp._visible = buttonsHidden;
+		btnOptions._visible = buttonsHidden;
+		btnMinimize._visible = buttonsHidden;
+		btnResize._visible = buttonsHidden;
 
 		// Redraw on all quest signals that are not quest goals.
 		// does not work btw vOv
@@ -188,8 +201,23 @@ class Main
 
 	static function onPressButton(): Boolean
 	{
+		// toggle buttons
+		if (btnToggle._visible && btnToggle.hitTest(_root._xmouse, _root._ymouse, true))
+		{
+			var val = !valHideButtons.GetValue();
+			valHideButtons.SetValue(val);
+
+			btnScaleDown._visible = val;
+			btnScaleUp._visible = val;
+			btnOptions._visible = val;
+			btnMinimize._visible = val;
+			btnResize._visible = val;
+			btnToggle['btnToggleText'].text = (val ? '<' : '>');
+			return true;
+		}
+
 		// scale up, +
-		if (btnScaleUp.hitTest(_root._xmouse, _root._ymouse, true))
+		if (btnScaleUp._visible && btnScaleUp.hitTest(_root._xmouse, _root._ymouse, true))
 		{
 			var scale = valScale.GetValue();
 			scale += 10;
@@ -201,7 +229,7 @@ class Main
 		}
 
 		// scale down, -
-		if (btnScaleDown.hitTest(_root._xmouse, _root._ymouse, true))
+		if (btnScaleDown._visible && btnScaleDown.hitTest(_root._xmouse, _root._ymouse, true))
 		{
 			var scale = valScale.GetValue();
 			scale -= 10;
@@ -213,7 +241,7 @@ class Main
 		}
 
 		// minimize
-		if (btnMinimize.hitTest(_root._xmouse, _root._ymouse, true))
+		if (btnMinimize._visible && btnMinimize.hitTest(_root._xmouse, _root._ymouse, true))
 		{
 			valMin.SetValue(!valMin.GetValue());
 			inst.redraw();
@@ -221,7 +249,7 @@ class Main
 		}
 
 		// options window
-		if (btnOptions.hitTest(_root._xmouse, _root._ymouse, true))
+		if (btnOptions._visible && btnOptions.hitTest(_root._xmouse, _root._ymouse, true))
 		{
 			options.show(cont);
 			return true;
@@ -235,7 +263,7 @@ class Main
 	function onPress()
 	{
 		// start resizing
-		if (btnResize.hitTest(_root._xmouse, _root._ymouse, true))
+		if (btnResize._visible && btnResize.hitTest(_root._xmouse, _root._ymouse, true))
 		{
 			isResize = true;
 			xResize = cont._xmouse;
