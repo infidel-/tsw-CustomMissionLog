@@ -73,9 +73,11 @@ class CustomMissionLogOptions
 			var val = dval.GetValue();
 			if (val == undefined)
 				val = 0;
-		
+
+			var textWrap = cont.createEmptyMovieClip(tpl.id + "TextWrap", 
+				cont.getNextHighestDepth());
 			// item text field
-			var ttf = cont.createTextField(tpl.id + "Text", 
+			var ttf = textWrap.createTextField(tpl.id + "Text", 
 				cont.getNextHighestDepth(), 0, 0, 80, 20);
 			var tf: TextField = ttf;
 			tf._x = 20;
@@ -100,6 +102,7 @@ class CustomMissionLogOptions
 				btn: btn,
 				btnText: btn[tpl.id + 'BtnText'],
 				textField: tf,
+				textWrap: textWrap,
 				value: val,
 				dval: dval,
 				max: tpl.max
@@ -114,6 +117,25 @@ class CustomMissionLogOptions
 	}
 
 
+	// create simple button with text on it
+	function createButton(name: String, s: String, x: Number, y: Number): MovieClip
+	{
+		var btn = cont.createEmptyMovieClip(name, 
+			cont.getNextHighestDepth());
+		var tt = btn.createTextField(name + "Text",
+			cont.getNextHighestDepth(),
+			x, y, 20, 20);
+		var t: TextField = tt;
+		t.autoSize = "left";
+		t.backgroundColor = 0x111111;
+		t.background = true;
+		t.setNewTextFormat(textFormatButton);
+		t.text = s;
+
+		return btn;
+	}
+
+
 	// check for button presses
 	function onRelease()
 	{
@@ -121,7 +143,8 @@ class CustomMissionLogOptions
 		for (var i: Number = 0; i < options.length; i++)
 		{
 			var o = options[i];
-			if (o.btn.hitTest(_root._xmouse, _root._ymouse, true))
+			if (o.btn.hitTest(_root._xmouse, _root._ymouse, true) ||
+				o.textWrap.hitTest(_root._xmouse, _root._ymouse, true))
 			{
 				o.value += 1;
 				if (o.value > o.max)
@@ -157,24 +180,5 @@ class CustomMissionLogOptions
 		cont._x = c._x + 10;
 		cont._y = c._y + 30;
 		cont._visible = true;
-	}
-
-
-	// create simple button with text on it
-	function createButton(name: String, s: String, x: Number, y: Number): MovieClip
-	{
-		var btn = cont.createEmptyMovieClip(name, 
-			cont.getNextHighestDepth());
-		var tt = btn.createTextField(name + "Text",
-			cont.getNextHighestDepth(),
-			x, y, 20, 20);
-		var t: TextField = tt;
-		t.autoSize = "left";
-		t.backgroundColor = 0x111111;
-		t.background = true;
-		t.setNewTextFormat(textFormatButton);
-		t.text = s;
-
-		return btn;
 	}
 }
