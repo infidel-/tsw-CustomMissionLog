@@ -6,6 +6,7 @@ import com.GameInterface.UtilsBase;
 import com.GameInterface.DistributedValue;
 import com.Utils.LDBFormat;
 import com.Utils.Point;
+import flash.filters.GlowFilter;
  
 class Main
 {
@@ -93,6 +94,11 @@ class Main
 		t.backgroundColor = 0x000000;
 		t.background = (valTransparent.GetValue() == 0);
 		textField = t;
+
+		// text outline
+		var outline:GlowFilter = new GlowFilter(0x000000,1.0,2.0,2.0,10);
+		outline.quality = 1;
+		textField.filters = [outline];
 
 		// create all buttons
 		textFormatButton = new TextFormat(
