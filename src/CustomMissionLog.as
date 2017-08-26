@@ -8,7 +8,7 @@ import com.Utils.LDBFormat;
 import com.Utils.Point;
 import flash.filters.GlowFilter;
  
-class Main
+class CustomMissionLog
 {
 	// made all fields static because of weird scope bugs
 	public static var cont: MovieClip;
@@ -54,7 +54,7 @@ class Main
 	public static var options: CustomMissionLogOptions;
 
 	
-	public function Main(swfRoot:MovieClip)
+	public function CustomMissionLog(swfRoot:MovieClip)
     {
 		isDrag = false;
 		isResize = false;
@@ -470,9 +470,9 @@ class Main
 	}
 
 
-	public static var inst: Main;
+	public static var inst: CustomMissionLog;
 	public static function main(swfRoot:MovieClip):Void
 	{
-	  inst = new Main(swfRoot);
+	  inst = new CustomMissionLog(swfRoot);
 	}
 }

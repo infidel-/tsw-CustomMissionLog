@@ -9,12 +9,12 @@ class CustomMissionLogOptions
 	public static var textFormatButton: TextFormat;
 
 	public static var options: Array;
-	public static var main: Main;
+	public static var main: CustomMissionLog;
 	public static var btnClose: MovieClip;
 //	public static var archive: Archive;
 
 	
-	public function CustomMissionLogOptions(swfRoot: MovieClip, mvar: Main)
+	public function CustomMissionLogOptions(swfRoot: MovieClip, mvar: CustomMissionLog)
 	{
 		main = mvar;
 		options = new Array();
@@ -162,7 +162,7 @@ class CustomMissionLogOptions
 				// apply transparency
 				if (o.id == 'transparent')
 				{
-					Main.cont['cmlText'].background = (o.value == 0);
+					CustomMissionLog.cont['cmlText'].background = (o.value == 0);
 				}
 			}
 		}
