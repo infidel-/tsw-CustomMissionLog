@@ -32,7 +32,9 @@ class CustomMissionLog
 
 	public static var fmtDefault: TextFormat;
 	public static var fmtTitle: TextFormat;
+	public static var fmtTaskTimer: TextFormat;
 	public static var fmtGoal: TextFormat;
+	public static var fmtGoalTimer: TextFormat;
 	public static var fmtTypeAction: TextFormat;
 	public static var fmtTypeInvestigation: TextFormat;
 	public static var fmtTypeSabotage: TextFormat;
@@ -146,7 +148,9 @@ class CustomMissionLog
 		// text format
 		fmtDefault = new TextFormat("lib.Aller.ttf", 18, 0xCCCCCC, true, false, false);
 		fmtTitle = new TextFormat("lib.Aller.ttf", 20, 0xFFFFFF, true, false, false);
+		fmtTaskTimer = new TextFormat("lib.Aller.ttf", 20, 0xee2b2b, true, false, false);
 		fmtGoal = new TextFormat("lib.Aller.ttf", 18, 0x63f99a, true, false, false);
+		fmtGoalTimer = new TextFormat("lib.Aller.ttf", 18, 0x08dd56, true, false, false);
 		fmtTypeAction = new TextFormat("lib.Aller.ttf", 18, 0xf04949, true, false, false);
 		fmtTypeInvestigation = new TextFormat("lib.Aller.ttf", 18, 0x54ae16, true, false, false);
 		fmtTypeSabotage = new TextFormat("lib.Aller.ttf", 18, 0xeca603, true, false, false);
@@ -445,6 +449,14 @@ class CustomMissionLog
 	// add mission text to full window text and return it
 	static function addMissionText(text: String, quest: Quest): String
 	{
+		// current task global timer
+		if (quest.m_CurrentTask.m_Timeout > 0)
+		{
+			var timerText:String = timeToString(quest.m_CurrentTask.m_Timeout);
+			addString(text, fmtTaskTimer, timerText);
+			text += timerText  + " ";
+		}
+		
 		// basic mission info
 		var missionType:String = GUI.Mission.MissionUtils.MissionTypeToString(quest.m_MissionType);
 		var tier:String = quest.m_CurrentTask.m_Tier + "/" + quest.m_TierMax;
@@ -455,14 +467,6 @@ class CustomMissionLog
 		text += "<" + missionType + "> [L" +
 			quest.m_CurrentTask.m_Difficulty + "] [" +
 			tier + "]";
-			
-		// current task global timer
-		if (quest.m_CurrentTask.m_Timeout > 0)
-		{
-			var timerText:String = " " + timeToString(quest.m_CurrentTask.m_Timeout);
-			addString(text, fmtDefault, timerText);
-			text += timerText;
-		}
 		
 		text += "\n";
 
@@ -484,17 +488,16 @@ class CustomMissionLog
 				continue;
 
 			if ( quest.m_CurrentTask.m_CurrentPhase == goal.m_Phase )
-			{
-				var goalDesc:String = "";
-				
+			{				
 				// goal specific timer
 				if (goal.m_ExpireTime > 0)
 				{
 					var timerText:String = timeToString(goal.m_ExpireTime) + " ";
-					goalDesc += timerText;
+					addString(text, fmtGoalTimer, timerText);
+					text += timerText;
 				}
 				
-				goalDesc += com.Utils.LDBFormat.Translate( goal.m_Name );
+				var goalDesc:String = com.Utils.LDBFormat.Translate( goal.m_Name );
 				if (goal.m_RepeatCount > 1 && goal.m_SolvedTimes < goal.m_RepeatCount)
 				{
 					var numDesc:String = " (" + goal.m_SolvedTimes + "/" + goal.m_RepeatCount + ")";
