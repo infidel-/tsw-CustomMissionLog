@@ -477,7 +477,7 @@ class CustomMissionLog
 		// 2 - skip all
 		// NOTE: Assignment mission in SWL don't have mission desc, so always skips them
 		var val = valDesc.GetValue(); 
-		if (val == 0 || (val == 1 && quest.m_MissionType != _global.Enums.MainQuestType.e_Story) && !(isSWL && quest.m_MissionType == _global.Enums.MainQuestType.e_AreaMission))
+		if ((val == 0 || (val == 1 && quest.m_MissionType != _global.Enums.MainQuestType.e_Story)) && !(isSWL && quest.m_MissionType == _global.Enums.MainQuestType.e_AreaMission))
 			text += quest.m_CurrentTask.m_Desc + "\n";
 
 		// print mission goals list
