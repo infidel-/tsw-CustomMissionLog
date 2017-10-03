@@ -21,6 +21,7 @@ class CustomMissionLog
 	public static var xResize: Number;
 	public static var oldWidth: Number;
 	public static var curButtonX: Number;
+	public static var isSWL:Boolean;
 
 	public static var btnToggle: MovieClip;
 	public static var btnScaleDown: MovieClip;
@@ -39,6 +40,7 @@ class CustomMissionLog
 	public static var fmtTypeDungeon: TextFormat;
 	public static var fmtTypeRaid: TextFormat;
 	public static var fmtTypeSide: TextFormat;
+	public static var fmtTypeAssignment: TextFormat;
 	
 	public static var valX: DistributedValue;
 	public static var valY: DistributedValue;
@@ -59,6 +61,9 @@ class CustomMissionLog
 		isDrag = false;
 		isResize = false;
 		curButtonX = 5;
+		
+		//Check if we are in swl or tsw
+		isSWL = _global.Enums.MainQuestType["e_AreaMission"] != undefined;
 
 		// load config values
 /*
@@ -153,6 +158,11 @@ class CustomMissionLog
 		fmtTypeDungeon = new TextFormat("lib.Aller.ttf", 18, 0xcc3bff, true, false, false);
 		fmtTypeRaid = new TextFormat("lib.Aller.ttf", 18, 0xcc3bff, true, false, false);
 		fmtTypeSide = new TextFormat("lib.Aller.ttf", 18, 0xBBBBBB, true, false, false);
+		
+		// initialize the assignment Text Format only in SWL
+		if(isSWL)
+			fmtTypeAssignment = new TextFormat("lib.Aller.ttf", 18, 0xe8dc4d, true, false, false);
+		
 		t.setNewTextFormat(fmtTitle);
 		t.setNewTextFormat(fmtDefault);
 		
@@ -181,6 +191,11 @@ class CustomMissionLog
             case _global.Enums.MainQuestType.e_Raid:
 				return fmtTypeRaid;
 		}
+		
+		// make assignment a special case because need to check which game we're in
+		if(isSWL && missionType == _global.Enums.MainQuestType["e_AreaMission"])
+			return fmtTypeAssignment;
+			
 		return fmtTypeSide;
 	}
 
@@ -396,6 +411,18 @@ class CustomMissionLog
 			text = addMissionText(text, quest);
 			delete tmp[i];
 		}
+		
+		// assignment mission next (only in SWL)
+		if(isSWL)
+		for (var i = 0; i < tmp.length; ++i)
+		{
+			var quest = tmp[i];
+			if (quest.m_MissionType != _global.Enums.MainQuestType["e_AreaMission"])
+				continue;
+
+			text = addMissionText(text, quest);
+			delete tmp[i];
+		}
 
 		// the rest
 		for (var i = 0; i < tmp.length; ++i)
@@ -423,8 +450,18 @@ class CustomMissionLog
 	// add mission text to full window text and return it
 	static function addMissionText(text: String, quest: Quest): String
 	{
+		// SWL Bug Workaround : Using anima leap while an assignment mission is active sometimes only deletes the goals
+		// This should filter it without causing any trouble.
+		if (isSWL && quest.m_MissionType ==  _global.Enums.MainQuestType["e_AreaMission"] && quest.m_CurrentTask.m_Goals == undefined)
+			return text;
+		
 		// basic mission info
 		var missionType:String = GUI.Mission.MissionUtils.MissionTypeToString(quest.m_MissionType);
+		
+		// special case for assignment missions(only in SWL)
+		if (isSWL && quest.m_MissionType == _global.Enums.MainQuestType["e_AreaMission"])
+			missionType = "Assignment";
+		
 		var tier:String = quest.m_CurrentTask.m_Tier + "/" + quest.m_TierMax;
 		addString(text, fmtTitle, quest.m_MissionName);
 		text += quest.m_MissionName + " ";
@@ -438,8 +475,9 @@ class CustomMissionLog
 		// 0 - all descriptions
 		// 1 - skip main story
 		// 2 - skip all
+		// NOTE: Assignment mission in SWL don't have mission desc, so always skips them
 		var val = valDesc.GetValue(); 
-		if (val == 0 || (val == 1 && quest.m_MissionType != _global.Enums.MainQuestType.e_Story))
+		if (val == 0 || (val == 1 && quest.m_MissionType != _global.Enums.MainQuestType.e_Story) && !(isSWL && quest.m_MissionType == _global.Enums.MainQuestType["e_AreaMission"]))
 			text += quest.m_CurrentTask.m_Desc + "\n";
 
 		// print mission goals list
