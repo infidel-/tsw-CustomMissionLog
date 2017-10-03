@@ -63,7 +63,7 @@ class CustomMissionLog
 		curButtonX = 5;
 		
 		//Check if we are in swl or tsw
-		isSWL = _global.Enums.MainQuestType["e_AreaMission"] != undefined;
+		isSWL = _global.Enums.MainQuestType.e_AreaMission != undefined;
 
 		// load config values
 /*
@@ -193,7 +193,7 @@ class CustomMissionLog
 		}
 		
 		// make assignment a special case because need to check which game we're in
-		if(isSWL && missionType == _global.Enums.MainQuestType["e_AreaMission"])
+		if(isSWL && missionType == _global.Enums.MainQuestType.e_AreaMission)
 			return fmtTypeAssignment;
 			
 		return fmtTypeSide;
@@ -417,7 +417,7 @@ class CustomMissionLog
 		for (var i = 0; i < tmp.length; ++i)
 		{
 			var quest = tmp[i];
-			if (quest.m_MissionType != _global.Enums.MainQuestType["e_AreaMission"])
+			if (quest.m_MissionType != _global.Enums.MainQuestType.e_AreaMission)
 				continue;
 
 			text = addMissionText(text, quest);
@@ -452,14 +452,14 @@ class CustomMissionLog
 	{
 		// SWL Bug Workaround : Using anima leap while an assignment mission is active sometimes only deletes the goals
 		// This should filter it without causing any trouble.
-		if (isSWL && quest.m_MissionType ==  _global.Enums.MainQuestType["e_AreaMission"] && quest.m_CurrentTask.m_Goals == undefined)
+		if (isSWL && quest.m_MissionType ==  _global.Enums.MainQuestType.e_AreaMission && quest.m_CurrentTask.m_Goals == undefined)
 			return text;
 		
 		// basic mission info
 		var missionType:String = GUI.Mission.MissionUtils.MissionTypeToString(quest.m_MissionType);
 		
 		// special case for assignment missions(only in SWL)
-		if (isSWL && quest.m_MissionType == _global.Enums.MainQuestType["e_AreaMission"])
+		if (isSWL && quest.m_MissionType == _global.Enums.MainQuestType.e_AreaMission)
 			missionType = "Assignment";
 		
 		var tier:String = quest.m_CurrentTask.m_Tier + "/" + quest.m_TierMax;
@@ -477,7 +477,7 @@ class CustomMissionLog
 		// 2 - skip all
 		// NOTE: Assignment mission in SWL don't have mission desc, so always skips them
 		var val = valDesc.GetValue(); 
-		if (val == 0 || (val == 1 && quest.m_MissionType != _global.Enums.MainQuestType.e_Story) && !(isSWL && quest.m_MissionType == _global.Enums.MainQuestType["e_AreaMission"]))
+		if (val == 0 || (val == 1 && quest.m_MissionType != _global.Enums.MainQuestType.e_Story) && !(isSWL && quest.m_MissionType == _global.Enums.MainQuestType.e_AreaMission))
 			text += quest.m_CurrentTask.m_Desc + "\n";
 
 		// print mission goals list
