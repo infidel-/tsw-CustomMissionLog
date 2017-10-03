@@ -4,6 +4,7 @@ import com.GameInterface.QuestTask;
 import com.GameInterface.Quests;
 import com.GameInterface.UtilsBase;
 import com.GameInterface.DistributedValue;
+import com.GameInterface.Utils;
 import com.Utils.LDBFormat;
 import com.Utils.Point;
 import flash.filters.GlowFilter;
@@ -344,6 +345,27 @@ class CustomMissionLog
 		text += s;
 	}
 	
+	static function timeToString(timeout: Number)
+	{
+		var timerText:String = "[00:00]";
+		
+		var time = Utils.GetServerSyncedTime();
+		var timeLeft = (timeout - time) * 1000;
+		if( timeLeft > 0 )
+		{
+			if( timeLeft > 60*60*1000 )
+			{
+				// Show "hour:min" if more than 1 hour left.
+				timeLeft = timeLeft/60;
+			}
+			
+			//convert timeLeft to "[xx:xx]"
+			timerText = com.Utils.Format.Printf("[%02.0f:%02.0f]", Math.floor(timeLeft / 60000), Math.floor(timeLeft / 1000) % 60 );
+		}
+		
+		return timerText;
+	}
+	
 	// redraw all text
 	public function redraw()
 	{
@@ -432,7 +454,17 @@ class CustomMissionLog
 			"<" + missionType + ">");
 		text += "<" + missionType + "> [L" +
 			quest.m_CurrentTask.m_Difficulty + "] [" +
-			tier + "]\n";
+			tier + "]";
+			
+		// current task global timer
+		if (quest.m_CurrentTask.m_Timeout > 0)
+		{
+			var timerText:String = " " + timeToString(quest.m_CurrentTask.m_Timeout);
+			addString(text, fmtDefault, timerText);
+			text += timerText;
+		}
+		
+		text += "\n";
 
 		// skip global mission description if desc
 		// 0 - all descriptions
@@ -453,7 +485,16 @@ class CustomMissionLog
 
 			if ( quest.m_CurrentTask.m_CurrentPhase == goal.m_Phase )
 			{
-				var goalDesc:String = com.Utils.LDBFormat.Translate( goal.m_Name );
+				var goalDesc:String = "";
+				
+				// goal specific timer
+				if (goal.m_ExpireTime > 0)
+				{
+					var timerText:String = timeToString(goal.m_ExpireTime) + " ";
+					goalDesc += timerText;
+				}
+				
+				goalDesc += com.Utils.LDBFormat.Translate( goal.m_Name );
 				if (goal.m_RepeatCount > 1 && goal.m_SolvedTimes < goal.m_RepeatCount)
 				{
 					var numDesc:String = " (" + goal.m_SolvedTimes + "/" + goal.m_RepeatCount + ")";
