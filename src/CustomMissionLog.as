@@ -50,12 +50,14 @@ class CustomMissionLog
 	public static var valScale: DistributedValue;
 	public static var valWidth: DistributedValue;
 	public static var valMin: DistributedValue;
-	
+
+	// options
 	public static var valHideButtons: DistributedValue;
 	public static var valDesc: DistributedValue;
 	public static var valTransparent: DistributedValue;
 	public static var valSingleMission: DistributedValue;
 	public static var valLockWindow: DistributedValue;
+	public static var valGlueToBottom: DistributedValue;
 	public static var options: CustomMissionLogOptions;
 
 	
@@ -83,6 +85,7 @@ class CustomMissionLog
 		valTransparent = DistributedValue.Create("CustomMissionLog.transparent");
 		valSingleMission = DistributedValue.Create("CustomMissionLog.singleMission");
 		valLockWindow = DistributedValue.Create("CustomMissionLog.lockWindow");
+		valGlueToBottom = DistributedValue.Create("CustomMissionLog.glueToBottom");
 
 		cont = swfRoot.createEmptyMovieClip("cmlContainer", 
 			swfRoot.getNextHighestDepth());
@@ -173,8 +176,8 @@ class CustomMissionLog
 		
 		options = new CustomMissionLogOptions(swfRoot, this);
 
-		// hax: redraw window every 1 seconds
-		setInterval(redraw, 1000);
+		// hax: redraw window every 0.5 seconds
+		setInterval(redraw, 500);
     }
 
 
@@ -464,12 +467,24 @@ class CustomMissionLog
 			textField.setTextFormat(r.start, r.end, r.fmt);
 		}
 
-		// pull up if we grow too large
+		// glue to bottom of the screen
+		if (valGlueToBottom.GetValue() == 1)
+		{
+			if (cont._y + cont._height < Stage.height - 10)
+				cont._y = Stage.height - 10 - cont._height;
+		}
+
+		// pull up if we're outside on the bottom
 		if (cont._y + cont._height > Stage.height - 10)
 			cont._y = Stage.height - 10 - cont._height;
-		// but don't grow outside
+
+		// never grow outside of the top
 		if (cont._y < 30)
 			cont._y = 30;
+
+		// do not allow to move window outside of screen
+		if (cont._x < 10)
+			cont._x = 10;
 	}
 
 
