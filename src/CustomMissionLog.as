@@ -4,6 +4,7 @@ import com.GameInterface.QuestTask;
 import com.GameInterface.Quests;
 import com.GameInterface.UtilsBase;
 import com.GameInterface.DistributedValue;
+import com.GameInterface.Utils;
 import com.Utils.LDBFormat;
 import com.Utils.Point;
 import flash.filters.GlowFilter;
@@ -32,7 +33,9 @@ class CustomMissionLog
 
 	public static var fmtDefault: TextFormat;
 	public static var fmtTitle: TextFormat;
+	public static var fmtTaskTimer: TextFormat;
 	public static var fmtGoal: TextFormat;
+	public static var fmtGoalTimer: TextFormat;
 	public static var fmtTypeAction: TextFormat;
 	public static var fmtTypeInvestigation: TextFormat;
 	public static var fmtTypeSabotage: TextFormat;
@@ -150,7 +153,9 @@ class CustomMissionLog
 		// text format
 		fmtDefault = new TextFormat("lib.Aller.ttf", 18, 0xCCCCCC, true, false, false);
 		fmtTitle = new TextFormat("lib.Aller.ttf", 20, 0xFFFFFF, true, false, false);
+		fmtTaskTimer = new TextFormat("lib.Aller.ttf", 20, 0xee2b2b, true, false, false);
 		fmtGoal = new TextFormat("lib.Aller.ttf", 18, 0x63f99a, true, false, false);
+		fmtGoalTimer = new TextFormat("lib.Aller.ttf", 18, 0x08dd56, true, false, false);
 		fmtTypeAction = new TextFormat("lib.Aller.ttf", 18, 0xf04949, true, false, false);
 		fmtTypeInvestigation = new TextFormat("lib.Aller.ttf", 18, 0x54ae16, true, false, false);
 		fmtTypeSabotage = new TextFormat("lib.Aller.ttf", 18, 0xeca603, true, false, false);
@@ -359,6 +364,27 @@ class CustomMissionLog
 		text += s;
 	}
 	
+	static function timeToString(timeout: Number)
+	{
+		var timerText:String = "[00:00]";
+		
+		var time = Utils.GetServerSyncedTime();
+		var timeLeft = (timeout - time) * 1000;
+		if( timeLeft > 0 )
+		{
+			if( timeLeft > 60*60*1000 )
+			{
+				// Show "hour:min" if more than 1 hour left.
+				timeLeft = timeLeft/60;
+			}
+			
+			//convert timeLeft to "[xx:xx]"
+			timerText = com.Utils.Format.Printf("[%02.0f:%02.0f]", Math.floor(timeLeft / 60000), Math.floor(timeLeft / 1000) % 60 );
+		}
+		
+		return timerText;
+	}
+	
 	// redraw all text
 	public function redraw()
 	{
@@ -454,6 +480,14 @@ class CustomMissionLog
 		// This should filter it without causing any trouble.
 		if (isSWL && quest.m_MissionType ==  _global.Enums.MainQuestType.e_AreaMission && quest.m_CurrentTask.m_Goals == undefined)
 			return text;
+
+		// current task global timer
+		if (quest.m_CurrentTask.m_Timeout > 0)
+		{
+			var timerText:String = timeToString(quest.m_CurrentTask.m_Timeout);
+			addString(text, fmtTaskTimer, timerText);
+			text += timerText  + " ";
+		}
 		
 		// basic mission info
 		var missionType:String = GUI.Mission.MissionUtils.MissionTypeToString(quest.m_MissionType);
@@ -469,7 +503,9 @@ class CustomMissionLog
 			"<" + missionType + ">");
 		text += "<" + missionType + "> [L" +
 			quest.m_CurrentTask.m_Difficulty + "] [" +
-			tier + "]\n";
+			tier + "]";
+		
+		text += "\n";
 
 		// skip global mission description if desc
 		// 0 - all descriptions
@@ -490,7 +526,15 @@ class CustomMissionLog
 				continue;
 
 			if ( quest.m_CurrentTask.m_CurrentPhase == goal.m_Phase )
-			{
+			{				
+				// goal specific timer
+				if (goal.m_ExpireTime > 0)
+				{
+					var timerText:String = timeToString(goal.m_ExpireTime) + " ";
+					addString(text, fmtGoalTimer, timerText);
+					text += timerText;
+				}
+				
 				var goalDesc:String = com.Utils.LDBFormat.Translate( goal.m_Name );
 				if (goal.m_RepeatCount > 1 && goal.m_SolvedTimes < goal.m_RepeatCount)
 				{
